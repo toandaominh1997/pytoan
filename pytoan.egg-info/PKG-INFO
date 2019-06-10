@@ -1,0 +1,18 @@
+Metadata-Version: 2.1
+Name: pytoan
+Version: 0.4.1
+Summary: A library of toandaominh1997
+Home-page: https://github.com/toandaominh1997/pytoan
+Author: toandaominh1997
+Author-email: toandaominh1997@gmail.com
+License: UNKNOWN
+Description: #  Library of pytoan
+        
+        ## Installing
+         - step 1: python setup.py sdist bdist_wheel
+         - step 2: python -m twine upload dist/* 
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Description-Content-Type: text/markdown
