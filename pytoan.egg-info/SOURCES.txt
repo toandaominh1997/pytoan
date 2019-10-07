@@ -5,3 +5,5 @@ pytoan.egg-info/PKG-INFO
 pytoan.egg-info/SOURCES.txt
 pytoan.egg-info/dependency_links.txt
 pytoan.egg-info/top_level.txt
+pytoan/pytorch/__init__.py
+pytoan/pytorch/learning.py
