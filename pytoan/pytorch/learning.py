@@ -3,7 +3,6 @@ import torch
 import os
 import pandas as pd 
 import time 
-from tqdm import tqdm_notebook as tqdm
 class Learning(object):
     def __init__(self,
             model,
@@ -74,7 +73,7 @@ class Learning(object):
         self.model.train()
         self.optimizer.zero_grad()
         self.train_metrics.reset()
-        for idx, (data, target) in enumerate(tqdm(data_loader)):
+        for idx, (data, target) in enumerate(data_loader):
             data, target = data.to(self.device), target.to(self.device)
             output = self.model(data)
             loss = self.criterion(output, target)
@@ -89,7 +88,7 @@ class Learning(object):
         self.model.eval()
         self.valid_metrics.reset()
         with torch.no_grad():
-            for idx, (data, target) in enumerate(tqdm(data_loader)):
+            for idx, (data, target) in enumerate(data_loader):
                 data, target = data.to(self.device), target.to(self.device)
                 output = self.model(data)
                 loss = self.criterion(output, target)
