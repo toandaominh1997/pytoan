@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pytoan",
-    version="0.5.4",
+    version="0.5.5",
     author="toandaominh1997",
     author_email="toandaominh1997@gmail.com",
     description="A library of toandaominh1997",
