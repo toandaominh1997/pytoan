@@ -7,3 +7,6 @@ pytoan.egg-info/dependency_links.txt
 pytoan.egg-info/top_level.txt
 pytoan/pytorch/__init__.py
 pytoan/pytorch/learning.py
+pytoan/pytorch/utils/__init__.py
+pytoan/pytorch/utils/util.py
+pytoan/pytorch/utils/visualization.py
