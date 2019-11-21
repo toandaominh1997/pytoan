@@ -100,14 +100,15 @@ learning = Learning(model=model,
                     resume_path=resume_path)
 
 ```
-
-Log:
-
-![MNIST_EXAMPLE](./data/images/mnist_ex.png)
 2. For Training and Validation
 ```python
 learning.train(train_loader, test_loader)
 ```
+
+Log:
+
+![MNIST_EXAMPLE](./data/images/mnist_ex.png)
+
 3. For Testing
 ```python
 learning.test(test_loader) # but not complete
