@@ -1,8 +1,10 @@
 
 import torch
 import os
+import numpy as np
 import pandas as pd 
 import time 
+from torch.utils.tensorboard import SummaryWriter
 class Learning(object):
     def __init__(self,
             model,
@@ -21,11 +23,15 @@ class Learning(object):
             resume_path):
         self.device, device_ids = self._prepare_device(device)
         self.model = model.to(self.device)
+        if resume_path is not None:
+            self._resume_checkpoint(resume_path)
         if len(device_ids) > 1:
             self.model = torch.nn.DataParallel(model, device_ids=device_ids)
+        
         self.criterion = criterion
         self.metric_ftns = metric_ftns
         self.optimizer = optimizer
+
         self.num_epoch = num_epoch 
         self.scheduler = scheduler
         self.grad_clipping = grad_clipping
@@ -37,10 +43,12 @@ class Learning(object):
         self.start_epoch = 0
         self.best_epoch = 0
         self.best_score = 0
-        if resume_path is not None:
-            self._resume_checkpoint(resume_path)
-        self.train_metrics = MetricTracker('loss')
-        self.valid_metrics = MetricTracker('loss', *[m.__name__ for m in self.metric_ftns])
+
+        self.log_step = -1    
+        self.writer = SummaryWriter()
+
+        self.train_metrics = MetricTracker('loss', writer=self.writer)
+        self.valid_metrics = MetricTracker('loss', *[m.__name__ for m in self.metric_ftns], writer=self.writer)
         
     def train(self, train_dataloader, valid_dataloader):
         for epoch in range(self.start_epoch, self.num_epoch+1):
@@ -70,6 +78,8 @@ class Learning(object):
                 print('EARLY STOPPING')
                 break
     def _train_epoch(self, data_loader):
+        self.log_step = int(np.sqrt(len(data_loader)))
+
         self.model.train()
         self.optimizer.zero_grad()
         self.train_metrics.reset()
@@ -79,10 +89,13 @@ class Learning(object):
             loss = self.criterion(output, target)
             loss.backward()
             self.train_metrics.update('loss', loss.item())
+
             if (idx+1) % self.grad_accumulation_steps == 0:
                 torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_clipping)
                 self.optimizer.step()
                 self.optimizer.zero_grad()
+            if (idx+1) % self.log_step ==0:
+                self.writer.add_
         return self.train_metrics.result()
     def _valid_epoch(self, data_loader):
         self.model.eval()
@@ -174,8 +187,9 @@ class Learning(object):
         return device, list_ids
 
 
-class MetricTracker:
-    def __init__(self, *keys):
+class MetricTracker(object):
+    def __init__(self, *keys, writer=None):
+        self.writer = writer
         self._data = pd.DataFrame(index=keys, columns=['total', 'counts', 'average'])
         self.reset()
         
@@ -184,6 +198,9 @@ class MetricTracker:
             self._data[col].values[:] = 0
 
     def update(self, key, value, n=1):
+        if self.writer is not None:
+            self.writer.add_scalar(key, value)
+        
         self._data.total[key] += value * n
         self._data.counts[key] += n
         self._data.average[key] = self._data.total[key] / self._data.counts[key]
