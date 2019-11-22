@@ -1,16 +1,11 @@
 from pytoan.pytorch import Learning
-
 import torch 
 import torch.nn as nn
 import torchvision
 import torchvision.transforms as transforms
-from tqdm import tqdm 
-
-# Device configuration
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+from pathlib import Path
 
 # Hyper parameters
-num_epochs = 5
 num_classes = 10
 batch_size = 100
 learning_rate = 0.001
@@ -20,21 +15,19 @@ train_dataset = torchvision.datasets.MNIST(root='../../data/',
                                            train=True, 
                                            transform=transforms.ToTensor(),
                                            download=True)
-
 test_dataset = torchvision.datasets.MNIST(root='../../data/',
                                           train=False, 
                                           transform=transforms.ToTensor())
 
-# Data loader
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
                                            batch_size=batch_size, 
-                                           shuffle=True)
-
+                                           shuffle=True,
+                                           pin_memory=True)
 test_loader = torch.utils.data.DataLoader(dataset=test_dataset,
                                           batch_size=batch_size, 
-                                          shuffle=False)
+                                          shuffle=False,
+                                          pin_memory=True)
 
-# Convolutional neural network (two convolutional layers)
 class ConvNet(nn.Module):
     def __init__(self, num_classes=10):
         super(ConvNet, self).__init__()
@@ -57,13 +50,6 @@ class ConvNet(nn.Module):
         out = self.fc(out)
         return out
 
-model = ConvNet(num_classes).to(device)
-
-# Loss and optimizer
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-
-from pathlib import Path
 def accuracy_score(output, target):
     with torch.no_grad():
         pred = torch.argmax(output, dim=1)
@@ -71,33 +57,36 @@ def accuracy_score(output, target):
         correct = 0
         correct += torch.sum(pred == target).item()
     return correct / len(target)
-  
+
+model = ConvNet(num_classes)
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
+metric_ftns = [accuracy_score]
 device = [0]
-num_epoch = 20
+num_epoch = 100
 gradient_clipping = 0.1
 gradient_accumulation_steps = 1
-early_stopping = 5
+early_stopping = 10
 validation_frequency = 1
-saved_period = 1
+tensorboard = True
 checkpoint_dir = Path('./', type(model).__name__)
 checkpoint_dir.mkdir(exist_ok=True, parents=True)
 resume_path = None
-metric_ftns = [accuracy_score]
 learning = Learning(model=model,
-                        optimizer=optimizer,
-                        criterion=criterion,
-                        device=device,
-                        metric_ftns=metric_ftns,
-                        num_epoch=num_epoch,
-                        scheduler = scheduler,
-                        grad_clipping = gradient_clipping,
-                        grad_accumulation_steps = gradient_accumulation_steps,
-                        early_stopping = early_stopping,
-                        validation_frequency = validation_frequency,
-                        save_period = saved_period,
-                        checkpoint_dir = checkpoint_dir,
-                        resume_path=resume_path)
+                    criterion=criterion,
+                    optimizer=optimizer,
+                    scheduler = scheduler,
+                    metric_ftns=metric_ftns,
+                    device=device,
+                    num_epoch=num_epoch,
+                    grad_clipping = gradient_clipping,
+                    grad_accumulation_steps = gradient_accumulation_steps,
+                    early_stopping = early_stopping,
+                    validation_frequency = validation_frequency,
+                    tensorboard = tensorboard,
+                    checkpoint_dir = checkpoint_dir,
+                    resume_path=resume_path)
 
 
-learning.train(tqdm(train_loader), tqdm(test_loader))
+learning.train(train_loader, test_loader)
