@@ -30,8 +30,9 @@ def visualization(*kwarg, title=None, ncols=2):
                 else:
                     ax[int(idx/2), int(idx%2)].set_title('Figure {}'.format(idx))
 
-visualization(img1, title=['1', '2', '3'])
-# visualization(img1, img1, title='kaka')
+from pytoan.pyplot import imshow
+
+imshow(img1, img1)
 
 # plt.imshow(img)
 plt.show()

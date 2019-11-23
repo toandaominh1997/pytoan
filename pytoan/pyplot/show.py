@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt 
 import math
 
-def imshow(*kwarg, title=None, ncols=2):
+def imshow(*kwarg, title=None, ncols=2, figsize=(10, 10)):
     num_image = len(kwarg)
     f, ax = plt.subplots(math.ceil(num_image/2.0), ncols, figsize=(10, 10))
     print(ax.shape)
