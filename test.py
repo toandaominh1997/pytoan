@@ -63,7 +63,7 @@ criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
 metric_ftns = [accuracy_score]
-device = [0]
+device = [0] 
 num_epoch = 100
 gradient_clipping = 0.1
 gradient_accumulation_steps = 1
