@@ -14,7 +14,6 @@ def imshow(*kwarg, title=None, ncols=2, figsize=(10, 10)):
     f, ax = plt.subplots(math.ceil(num_image/ncols), ncols,
                          figsize=figsize, squeeze=False)
     for idx, img in enumerate(kwarg):
-        img = np.array(img, dtype=np.uint8)
         ax[int(idx/ncols), int(idx % ncols)].imshow(img)
         if title is not None:
             try:
