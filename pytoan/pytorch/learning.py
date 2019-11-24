@@ -23,6 +23,7 @@ class Learning(object):
             resume_path):
         self.device, device_ids = self._prepare_device(device)
         self.model = model.to(self.device)
+        self.start_epoch = 1
         if resume_path is not None:
             self._resume_checkpoint(resume_path)
         if len(device_ids) > 1:
@@ -37,7 +38,6 @@ class Learning(object):
         self.early_stopping = early_stopping
         self.validation_frequency =validation_frequency
         self.checkpoint_dir = checkpoint_dir
-        self.start_epoch = 1
         self.best_epoch = 1
         self.best_score = 0
         self.writer = TensorboardWriter(os.path.join(checkpoint_dir, 'tensorboard'), tensorboard)
